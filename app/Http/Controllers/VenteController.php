@@ -6,6 +6,7 @@ use App\Models\Vente;
 use App\Http\Controllers\Controller;
 use App\Models\Produit;
 use Illuminate\Http\Request;
+use App\Http\Controllers\AuthController;
 
 class VenteController extends Controller
 {
@@ -22,11 +23,13 @@ class VenteController extends Controller
      */
     public function store(Request $request)
     {
+         $user = auth()->user();
+         
          $fields = $request->validate([
-            'user_id' => 'required|exists:users,id',
             'produits' => 'required|array',
             'produits.*.id' => 'required|integer|exists:produits,id',
-            'produits.*.quantite' => 'required|integer|min:1'
+            'produits.*.quantite' => 'required|integer|min:1',
+            'produits.*.total' => 'required|integer'
              
         ]);
 
@@ -51,13 +54,12 @@ class VenteController extends Controller
         $stockModel->save();
     }
 
-        $vente = Vente::create($request->except('products'));
+        $vente = Vente::create(['user_id' => $user->id]);
          $vente->produits()->attach(
         collect($produits)->mapWithKeys(fn($p) => [$p['id'] => ['quantite' => $p['quantite']]])->toArray()
         );
 
         return $vente;
-
     }
 
     /**

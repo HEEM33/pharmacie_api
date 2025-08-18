@@ -15,7 +15,7 @@ class ProduitController extends Controller
      */
     public function index()
     {
-        return Produit::all();
+        return Produit::with('categorie')->get();
     }
 
     /**
@@ -30,12 +30,15 @@ class ProduitController extends Controller
             'prix_unitaire' => 'required',
             'niveau_en_stock' => 'required',
             'categorie_id' => 'required|exists:categories,id',
-            'image' => 'required|file',
+            'image' => 'required|file|mimes:jpeg,png,jpg',
              
         ]);
-         if ($request->hasFile('image')) {
-        $imagePath = $request->file('image')->store('produits', 'public');
-        $fields['image'] = $imagePath;
+         $filename = null;
+        if ($request->hasFile('image')) {
+            $file = $request->file('image');
+            $filename = time() . '-' . $file->getClientOriginalName();
+            $file->move(public_path('uploads/products/'), $filename);
+           $fields['image'] = $filename;
         }
 
         $produit = Produit::create($fields);

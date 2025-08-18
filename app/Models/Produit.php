@@ -19,7 +19,7 @@ const seuil = 3;
         'prix_unitaire',
         'niveau_en_stock',
         'categorie_id', 
-        'image', 
+        'image' 
     ];
 
     public function ligneCommandes()
@@ -44,6 +44,6 @@ const seuil = 3;
 
      public function categorie()
     {
-        return $this->belongsTo(Categorie::class);
+        return $this->belongsTo(Categorie::class, 'categorie_id');
     }
 }

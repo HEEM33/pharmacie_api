@@ -13,7 +13,9 @@ return new class extends Migration
     {
         Schema::create('ventes', function (Blueprint $table) {
             $table->id();
-             $table->string('quantite');
+            $table->integer('quantite');
+            $table->decimal('prix_unitaire', 8, 2); 
+            $table->decimal('total', 8, 2);
             $table->foreignId('produit_id')->constrained('produits')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
