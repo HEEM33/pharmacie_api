@@ -54,7 +54,7 @@ class VenteController extends Controller
         $stockModel->save();
     }
 
-        $vente = Vente::create(['user_id' => $user->id]);
+        $vente = Vente::create(['user_id' => $user->id, 'status' => 'en attente']);
          $vente->produits()->attach(
         collect($produits)->mapWithKeys(fn($p) => [$p['id'] => ['quantite' => $p['quantite']]])->toArray()
         );

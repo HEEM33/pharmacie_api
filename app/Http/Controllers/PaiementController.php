@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Paiement;
 use App\Http\Controllers\Controller;
+use App\Models\Vente;
 use Illuminate\Http\Request;
 
 class PaiementController extends Controller
@@ -29,9 +30,21 @@ class PaiementController extends Controller
         ]);
 
         $paiement = Paiement::create($fields);
+        $vente = $paiement->vente;
+        $vente->status = 'finie';
+        $vente->save();
 
         return $paiement;
     }
+    
+    public function ventesEnAttente()
+{
+    $ventes = Vente::with(['user', 'produits'])
+                ->where('status', 'en attente')
+                ->get();
+
+    return response()->json($ventes);
+}
 
     /**
      * Display the specified resource.

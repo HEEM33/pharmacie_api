@@ -16,6 +16,7 @@ return new class extends Migration
             $table->integer('quantite');
             $table->decimal('prix_unitaire', 8, 2); 
             $table->decimal('total', 8, 2);
+            $table->string('status')->default('en attente');
             $table->foreignId('produit_id')->constrained('produits')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
             $table->timestamps();
