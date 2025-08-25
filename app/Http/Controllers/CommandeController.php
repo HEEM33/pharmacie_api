@@ -13,7 +13,7 @@ class CommandeController extends Controller
      */
     public function index()
     {
-        return Commande::all();
+        return Commande::with(['fournisseur', 'produit'])->get();
     }
 
     /**
@@ -22,12 +22,13 @@ class CommandeController extends Controller
     public function store(Request $request)
     {
          $fields = $request->validate([
-            'date_commande' => 'required',
             'fournisseur_id' => 'required|exists:fournisseurs,id',
             'produit_id' => 'required|exists:produits,id',  
         ]);
 
-        $commande = Commande::create($fields);
+        $commande = Commande::create([ 'fournisseur_id' => $fields['fournisseur_id'],
+        'produit_id' => $fields['produit_id'],
+        'status' => 'en attente',]);
 
         return $commande;
     }

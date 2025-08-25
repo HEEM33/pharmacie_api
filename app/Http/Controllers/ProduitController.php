@@ -50,7 +50,6 @@ class ProduitController extends Controller
         ], 201);
 
     } catch (ValidationException $e) {
-        // Retourner les erreurs de validation
         return response()->json([
             'errors' => $e->errors()
         ], 422);

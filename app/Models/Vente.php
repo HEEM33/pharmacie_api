@@ -13,7 +13,8 @@ class Vente extends Model
      protected $fillable = 
     [
         'user_id',
-        'produit_id'
+        'total',
+        'status'
     ];
 
     public function paiement()
@@ -28,6 +29,6 @@ class Vente extends Model
 
      public function produit()
     {
-        return $this->belongsTo(Produit::class);
+        return $this->belongsToMany(Produit::class)->withPivot('quantite');
     }
 }

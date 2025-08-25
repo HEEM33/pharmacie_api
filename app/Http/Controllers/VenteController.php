@@ -6,7 +6,6 @@ use App\Models\Vente;
 use App\Http\Controllers\Controller;
 use App\Models\Produit;
 use Illuminate\Http\Request;
-use App\Http\Controllers\AuthController;
 
 class VenteController extends Controller
 {
@@ -23,9 +22,10 @@ class VenteController extends Controller
      */
     public function store(Request $request)
     {
-         $user = auth()->user();
+          $user = $request->user();
          
          $fields = $request->validate([
+            'quantite' => 'required|integer',
             'produits' => 'required|array',
             'produits.*.id' => 'required|integer|exists:produits,id',
             'produits.*.quantite' => 'required|integer|min:1',

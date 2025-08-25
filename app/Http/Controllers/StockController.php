@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Stock;
 use App\Http\Controllers\Controller;
+use App\Models\Commande;
 use App\Models\Produit;
 use Illuminate\Http\Request;
 
@@ -14,7 +15,7 @@ class StockController extends Controller
      */
     public function index()
     {
-        return Stock::all();
+        return Stock::with('produit')->get();
     }
 
     /**
@@ -24,7 +25,7 @@ class StockController extends Controller
     {
         $fields = $request->validate([
         'produit_id' => 'required|exists:produits,id',
-        'commande_id' => 'required|exists:fournisseurs,id',
+        'commande_id' => 'required|exists:commandes,id',
         'quantite' => 'required|integer|min:1',
         
         ]);
@@ -34,6 +35,11 @@ class StockController extends Controller
     $produit = Produit::find($fields['produit_id']);
     $produit->niveau_en_stock += $fields['quantite'];
     $produit->save();
+    $commande = Commande::find($fields['commande_id']);
+    if ($commande) {
+        $commande->status = 'Recu';
+        $commande->save();
+    }
 
     return response()->json([
         'message' => 'Entrée en stock enregistrée avec succès',
@@ -62,6 +68,8 @@ class StockController extends Controller
      */
     public function destroy(Stock $stock)
     {
-        //
+        $stock->delete();
+
+        return response()->json(['message' => 'Stock supprimé avec succès'], 200);
     }
 }

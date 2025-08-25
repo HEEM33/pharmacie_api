@@ -12,14 +12,21 @@ class Commande extends Model
 
      protected $fillable = 
     [
-        'date_commande',
+        'produit_id',
         'fournisseur_id',
+        'status'
         
     ];
 
      public function fournisseur()
     {
         return $this->belongsTo(Fournisseur::class);
+    }
+
+
+    public function produit()
+    {
+        return $this->belongsTo(Produit::class);
     }
 
      public function lignes()
