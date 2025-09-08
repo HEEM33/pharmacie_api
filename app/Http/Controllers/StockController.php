@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Commande;
 use App\Models\Produit;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class StockController extends Controller
 {
@@ -23,6 +24,7 @@ class StockController extends Controller
      */
     public function store(Request $request)
     {
+        try{
         $fields = $request->validate([
         'produit_id' => 'required|exists:produits,id',
         'commande_id' => 'required|exists:commandes,id',
@@ -30,13 +32,39 @@ class StockController extends Controller
         
         ]);
 
-         $entree = Stock::create($fields);
+       $entree = Stock::where('produit_id', $fields['produit_id'])->first();
+
+    if ($entree) {
+        $entree->quantite += $fields['quantite'];
+        $entree->commande_id = $fields['commande_id'];
+        $entree->save();
+    } else {
+        $entree = Stock::create($fields);
+    }
 
     $produit = Produit::find($fields['produit_id']);
     $produit->niveau_en_stock += $fields['quantite'];
     $produit->save();
-    $commande = Commande::find($fields['commande_id']);
-    if ($commande) {
+    
+    $commande = Commande::with('produits')->findOrFail($fields['commande_id']);
+    $produitsCommandes = $commande->produits()->withPivot('quantite')->get();
+
+    $produitsRecus = Stock::where('commande_id', $commande->id)
+        ->selectRaw('produit_id, SUM(quantite) as total')
+        ->groupBy('produit_id')
+        ->pluck('total', 'produit_id');
+
+    $allRecus = true;
+    foreach ($produitsCommandes as $pc) {
+        $qteCommandee = $pc->pivot->quantite;
+        $qteRecue = $produitsRecus[$pc->id] ?? 0;
+        if ($qteRecue < $qteCommandee) {
+            $allRecus = false;
+            break;
+        }
+    }
+
+    if ($allRecus) {
         $commande->status = 'Recu';
         $commande->save();
     }
@@ -45,6 +73,17 @@ class StockController extends Controller
         'message' => 'Entrée en stock enregistrée avec succès',
         'entree_stock' => $entree,
     ]);
+     } catch (ValidationException $e) {
+        return response()->json([
+            'message' => 'Erreur de validation',
+            'errors' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Une erreur est survenue',
+            'error' => $e->getMessage()
+        ], 500);
+    }
     }
 
     /**

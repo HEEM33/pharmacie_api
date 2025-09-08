@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('stocks', function (Blueprint $table) {
             $table->id();
             $table->integer('quantite');
-            $table->string('status')->default('en attente');
             $table->foreignId('produit_id')->constrained('produits')->onDelete('cascade');
+            $table->foreignId('commande_id')->constrained('commandes')->onDelete('cascade'); 
             $table->timestamps();
         });
     }

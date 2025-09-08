@@ -6,12 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
     
 
     public function login (Request $request){
+        try{
          $request->validate([
             'email' => 'required|email|exists:users',
             'password' => 'required',
@@ -27,8 +29,20 @@ class AuthController extends Controller
 return [
     'user'=> $user,
     'access_token' => $token,
-    'token_type' => 'Bearer'
+    'token_type' => 'Bearer',
+    'roles' => $user->getRoleNames(),
 ];
+ } catch (ValidationException $e) {
+        return response()->json([
+            'message' => 'Erreur de validation',
+            'errors' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Une erreur est survenue',
+            'error' => $e->getMessage()
+        ], 500);
+    }
 
     } 
 

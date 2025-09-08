@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Fournisseur;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class FournisseurController extends Controller
 {
@@ -21,6 +22,7 @@ class FournisseurController extends Controller
      */
     public function store(Request $request)
     {
+        try{
          $fields = $request->validate([
             'nom' => 'required',
             'adresse' => 'required',
@@ -30,6 +32,17 @@ class FournisseurController extends Controller
         $fournisseur = Fournisseur::create($fields);
 
         return $fournisseur;
+         } catch (ValidationException $e) {
+        return response()->json([
+            'message' => 'Erreur de validation',
+            'errors' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Une erreur est survenue',
+            'error' => $e->getMessage()
+        ], 500);
+    }
     }
 
     /**
@@ -45,6 +58,7 @@ class FournisseurController extends Controller
      */
     public function update(Request $request, Fournisseur $fournisseur)
     {
+        try{
          $fields = $request->validate([
             'nom' => 'required',
             'adresse' => 'required',
@@ -54,6 +68,17 @@ class FournisseurController extends Controller
         $fournisseur->update($fields);
 
         return $fournisseur;
+         } catch (ValidationException $e) {
+        return response()->json([
+            'message' => 'Erreur de validation',
+            'errors' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Une erreur est survenue',
+            'error' => $e->getMessage()
+        ], 500);
+    }
     }
 
     /**

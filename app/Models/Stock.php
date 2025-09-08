@@ -14,6 +14,7 @@ class Stock extends Model
     [
         'quantite',
         'produit_id',
+        'commande_id'
     ];
 
      public function produit()

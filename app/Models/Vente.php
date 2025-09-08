@@ -17,7 +17,7 @@ class Vente extends Model
         'status'
     ];
 
-    public function paiement()
+    public function paiements()
     {
        return $this->hasMany(Paiement::class);
     }
@@ -27,8 +27,8 @@ class Vente extends Model
         return $this->belongsTo(User::class);
     }
 
-     public function produit()
+     public function produits()
     {
-        return $this->belongsToMany(Produit::class)->withPivot('quantite');
+        return $this->belongsToMany(Produit::class, 'produit_ventes')->withPivot('quantite');
     }
 }

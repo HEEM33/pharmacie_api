@@ -12,7 +12,6 @@ class Commande extends Model
 
      protected $fillable = 
     [
-        'produit_id',
         'fournisseur_id',
         'status'
         
@@ -24,13 +23,10 @@ class Commande extends Model
     }
 
 
-    public function produit()
+    public function produits()
     {
-        return $this->belongsTo(Produit::class);
-    }
-
-     public function lignes()
-    {
-        return $this->hasMany(Lignedecommande::class);
+        return $this->belongsToMany(Produit::class, 'lignedecommandes')
+                    ->withPivot('quantite')
+                    ->withTimestamps();
     }
 }

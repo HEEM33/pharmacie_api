@@ -22,10 +22,12 @@ const seuil = 3;
         'image' 
     ];
 
-    public function ligneCommandes()
-    {
-        return $this->hasMany(Lignedecommande::class);
-    }
+    public function commandes()
+{
+    return $this->belongsToMany(Commande::class, 'lignedeCommandes')
+                ->withPivot('quantite')
+                ->withTimestamps();
+}
 
     public function stock()
     {
@@ -37,9 +39,10 @@ const seuil = 3;
        return $this->hasMany(Alerte::class);
     }
 
-    public function vente()
+    public function ventes()
     {
-       return $this->hasMany(Vente::class);
+       return $this->belongsToMany(Vente::class, 'produit_ventes')
+                    ->withPivot('quantite');
     }
 
      public function categorie()

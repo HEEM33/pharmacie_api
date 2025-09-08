@@ -12,7 +12,7 @@ class AlerteController extends Controller
 {
    
     
-    public function alerte()
+    public function index()
     {
     $faibleStock = Produit::where('niveau_en_stock', '<', Produit::seuil)->get();
 

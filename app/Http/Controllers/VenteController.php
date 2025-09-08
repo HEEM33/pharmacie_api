@@ -25,11 +25,10 @@ class VenteController extends Controller
           $user = $request->user();
          
          $fields = $request->validate([
-            'quantite' => 'required|integer',
             'produits' => 'required|array',
             'produits.*.id' => 'required|integer|exists:produits,id',
             'produits.*.quantite' => 'required|integer|min:1',
-            'produits.*.total' => 'required|integer'
+            'total_general' => 'required|numeric'
              
         ]);
 
@@ -52,9 +51,11 @@ class VenteController extends Controller
 
         $stockModel->quantite -= $produit['quantite'];
         $stockModel->save();
+        $produitModel->niveau_en_stock -= $produit['quantite'];
+        $produitModel->save();
     }
 
-        $vente = Vente::create(['user_id' => $user->id, 'status' => 'en attente']);
+        $vente = Vente::create(['user_id' => $user->id, 'total' => $request->total_general, 'status' => 'en attente']);
          $vente->produits()->attach(
         collect($produits)->mapWithKeys(fn($p) => [$p['id'] => ['quantite' => $p['quantite']]])->toArray()
         );

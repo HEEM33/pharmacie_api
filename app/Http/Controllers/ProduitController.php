@@ -28,7 +28,6 @@ class ProduitController extends Controller
             'nom' => 'required', 
             'description' => 'required',
             'prix_unitaire' => 'required',
-            'niveau_en_stock' => 'required',
             'categorie_id' => 'required|exists:categories,id',
             'image' => 'required|file|mimes:jpeg,png,jpg',
              
@@ -41,18 +40,23 @@ class ProduitController extends Controller
            $fields['image'] = $filename;
         }
 
+         $fields['niveau_en_stock'] = 0; 
         $produit = Produit::create($fields);
-        $qrCode = QrCode::size(300)->generate("Produit ID: " . $produit->id);
 
          return response()->json([
             'produit' => $produit,
-            'qrCode' => $qrCode
         ], 201);
 
-    } catch (ValidationException $e) {
+     } catch (ValidationException $e) {
         return response()->json([
+            'message' => 'Erreur de validation',
             'errors' => $e->errors()
         ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Une erreur est survenue',
+            'error' => $e->getMessage()
+        ], 500);
     }
     }
 
@@ -69,6 +73,7 @@ class ProduitController extends Controller
      */
     public function update(Request $request, Produit $produit)
     {
+        try{
          $fields = $request->validate([
             'nom' => 'required', 
             'description' => 'required',
@@ -85,6 +90,17 @@ class ProduitController extends Controller
         $produit->update($fields);
 
         return $produit;
+         } catch (ValidationException $e) {
+        return response()->json([
+            'message' => 'Erreur de validation',
+            'errors' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Une erreur est survenue',
+            'error' => $e->getMessage()
+        ], 500);
+    }
     }
 
     /**

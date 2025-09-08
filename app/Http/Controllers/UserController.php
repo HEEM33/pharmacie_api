@@ -2,9 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Mail\UserCreatedMail;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Validation\ValidationException;
 use Spatie\Permission\Models\Role;
+use Illuminate\Support\Str;
+
 
 class UserController extends Controller
 {
@@ -22,24 +27,38 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        try{
         $fields = $request->validate([
             'name' => 'required|max:255',
             'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
             'role_id' => 'required|exists:roles,id', 
         ]);
+        $password = Str::random(10);
 
         $user = User::create([
             'name' => $fields['name'],
             'email' => $fields['email'],
-            'password' => bcrypt($fields['password']),
+            'password' => bcrypt($password),
         ]);
-
         $role = Role::findOrFail($fields['role_id']);
         $user->assignRole($role->name);
 
+         Mail::to($user->email)->send(new UserCreatedMail($user, $password));
+
         return response()->json($user->load('roles'), 201);
+         } catch (ValidationException $e) {
+        return response()->json([
+            'message' => 'Erreur de validation',
+            'errors' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Une erreur est survenue',
+            'error' => $e->getMessage()
+        ], 500);
     }
+    }
+
 
     /**
      * Afficher un utilisateur spécifique avec ses rôles.
@@ -55,6 +74,7 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        try{
         $user = User::findOrFail($id);
 
         $fields = $request->validate([
@@ -75,6 +95,17 @@ class UserController extends Controller
         }
 
         return response()->json($user->load('roles'), 200);
+         } catch (ValidationException $e) {
+        return response()->json([
+            'message' => 'Erreur de validation',
+            'errors' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Une erreur est survenue',
+            'error' => $e->getMessage()
+        ], 500);
+    }
     }
 
     /**

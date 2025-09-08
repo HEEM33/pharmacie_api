@@ -4,9 +4,11 @@ use App\Http\Controllers\AlerteController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategorieController;
 use App\Http\Controllers\CommandeController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\FournisseurController;
 use App\Http\Controllers\PaiementController;
 use App\Http\Controllers\ProduitController;
+use App\Http\Controllers\ResetController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\VenteController;
@@ -25,7 +27,8 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth:sanctum');
-Route::middleware(['auth:sanctum', 'role:admin'])->group(function () {
+Route::post('/reset', [ResetController::class, 'reset']);
+Route::middleware(['auth:sanctum'])->group(function () {
 Route::apiResource('categorie', CategorieController::class);
 Route::apiResource('commande', CommandeController::class);
 Route::apiResource('fournisseur', FournisseurController::class);
@@ -34,8 +37,10 @@ Route::apiResource('produit', ProduitController::class);
 Route::apiResource('stock', StockController::class);
 Route::apiResource('vente', VenteController::class);
 Route::apiResource('users', UserController::class);
+Route::post('/newpassword', [ResetController::class, 'newpassword']);
 Route::apiResource('alerte', AlerteController::class);
 Route::get('/ventes-en-attente', [PaiementController::class, 'ventesEnAttente']);
+Route::get('/dashboard', [DashboardController::class, 'index']);
 
 });
 

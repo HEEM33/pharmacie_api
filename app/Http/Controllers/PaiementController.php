@@ -31,7 +31,7 @@ class PaiementController extends Controller
 
         $paiement = Paiement::create($fields);
         $vente = $paiement->vente;
-        $vente->status = 'finie';
+        $vente->status = 'paye';
         $vente->save();
 
         return $paiement;

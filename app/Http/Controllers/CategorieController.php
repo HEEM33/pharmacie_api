@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Categorie;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Validation\ValidationException;
 
 class CategorieController extends Controller
 {
@@ -21,6 +22,7 @@ class CategorieController extends Controller
      */
     public function store(Request $request)
     {
+        try{
         $fields = $request->validate([
             'nom' => 'required',
             'description' => 'required',  
@@ -29,6 +31,17 @@ class CategorieController extends Controller
         $categorie = Categorie::create($fields);
 
         return $categorie;
+         } catch (ValidationException $e) {
+        return response()->json([
+            'message' => 'Erreur de validation',
+            'errors' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Une erreur est survenue',
+            'error' => $e->getMessage()
+        ], 500);
+    }
     }
 
     /**
@@ -44,6 +57,7 @@ class CategorieController extends Controller
      */
     public function update(Request $request, Categorie $categorie)
     {
+        try{
          $fields = $request->validate([
             'nom' => 'required',
             'description' => 'required',  
@@ -52,6 +66,17 @@ class CategorieController extends Controller
         $categorie->update($fields);
 
         return $categorie;
+         } catch (ValidationException $e) {
+        return response()->json([
+            'message' => 'Erreur de validation',
+            'errors' => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Une erreur est survenue',
+            'error' => $e->getMessage()
+        ], 500);
+    }
     }
 
     /**
