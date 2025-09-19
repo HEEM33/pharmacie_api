@@ -33,6 +33,7 @@ Route::apiResource('categorie', CategorieController::class);
 Route::apiResource('commande', CommandeController::class);
 Route::apiResource('fournisseur', FournisseurController::class);
 Route::apiResource('paiement', PaiementController::class);
+Route::post('init-mobile-payment', [PaiementController::class, 'initMobilePayment']);
 Route::apiResource('produit', ProduitController::class);
 Route::apiResource('stock', StockController::class);
 Route::apiResource('vente', VenteController::class);
@@ -41,6 +42,7 @@ Route::post('/newpassword', [ResetController::class, 'newpassword']);
 Route::apiResource('alerte', AlerteController::class);
 Route::get('/ventes-en-attente', [PaiementController::class, 'ventesEnAttente']);
 Route::get('/dashboard', [DashboardController::class, 'index']);
+Route::post('/onscan', [stockController::class, 'onScan']);
 
 });
 

@@ -6,6 +6,7 @@ use App\Models\Paiement;
 use App\Http\Controllers\Controller;
 use App\Models\Vente;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Http;
 
 class PaiementController extends Controller
 {
@@ -69,4 +70,23 @@ class PaiementController extends Controller
     {
         //
     }
+
+    public function initMobilePayment(Request $request)
+    {
+        $response = Http::post("https://api-checkout.cinetpay.com/v2/payment", [
+            "apikey" => env("CINETPAY_API_KEY"),
+            "site_id" => env("CINETPAY_SITE_ID"),
+            "transaction_id" => uniqid(),
+            "amount" => $request->amount,
+            "currency" => "XOF",
+            "description" => "Paiement de la vente #" . $request->vente_id,
+            "return_url" => url("/paiement/retour"),
+            "notify_url" => url("/api/paiement/notify"),
+            
+        ]);
+
+        return response()->json($response->json());
+    }
 }
+
+

@@ -65,7 +65,7 @@ class StockController extends Controller
     }
 
     if ($allRecus) {
-        $commande->status = 'Recu';
+        $commande->status = 'reçue';
         $commande->save();
     }
 
@@ -111,4 +111,73 @@ class StockController extends Controller
 
         return response()->json(['message' => 'Stock supprimé avec succès'], 200);
     }
+
+    public function onScan(Request $request)
+{
+    try {
+        $fields = $request->validate([
+            'produit_id'  => 'required|exists:produits,id',
+            'commande_id' => 'required|exists:commandes,id',
+            'quantite'    => 'nullable|integer|min:1', 
+        ]);
+
+        $quantite = $fields['quantite'] ?? 1;
+
+          $entree = Stock::where('produit_id', $fields['produit_id'])->first();
+
+    if ($entree) {
+        $entree->quantite += $fields['quantite'];
+        $entree->commande_id = $fields['commande_id'];
+        $entree->save();
+    } else {
+        $entree = Stock::create($fields);
+    }
+
+       
+
+        $produit = Produit::findOrFail($fields['produit_id']);
+        $produit->niveau_en_stock += $quantite;
+        $produit->save();
+
+        $commande = Commande::with('produits')->findOrFail($fields['commande_id']);
+        $produitsCommandes = $commande->produits()->withPivot('quantite')->get();
+
+        $produitsRecus = Stock::where('commande_id', $commande->id)
+            ->selectRaw('produit_id, SUM(quantite) as total')
+            ->groupBy('produit_id')
+            ->pluck('total', 'produit_id');
+
+        $allRecus = true;
+        foreach ($produitsCommandes as $pc) {
+            $qteCommandee = $pc->pivot->quantite;
+            $qteRecue = $produitsRecus[$pc->id] ?? 0;
+            if ($qteRecue < $qteCommandee) {
+                $allRecus = false;
+                break;
+            }
+        }
+
+        if ($allRecus) {
+            $commande->status = 'reçue';
+            $commande->save();
+        }
+
+        return response()->json([
+            'message' => 'Produit scanné avec succès, stock mis à jour.',
+            'stock'   => $entree,
+            'produit' => $produit,
+        ], 200);
+
+    } catch (ValidationException $e) {
+        return response()->json([
+            'message' => 'Erreur de validation',
+            'errors'  => $e->errors()
+        ], 422);
+    } catch (\Exception $e) {
+        return response()->json([
+            'message' => 'Une erreur est survenue',
+            'error'   => $e->getMessage()
+        ], 500);
+    }
+}
 }

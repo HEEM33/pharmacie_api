@@ -58,7 +58,7 @@ class CommandeController extends Controller
      */
     public function show(Commande $commande)
     {
-        return ['commande' => $commande];
+        return $commande->load('fournisseur', 'produits');
     }
 
     /**

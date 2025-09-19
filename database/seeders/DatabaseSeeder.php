@@ -21,6 +21,9 @@ class DatabaseSeeder extends Seeder
     $admin->givePermissionTo(Permission::all());
      $pharmacien = Role::create(['name' => 'pharmacien']);
       $caissier = Role::create(['name' => 'caissier']);
+
+ $this->call(UserSeeder::class);
+      
     }
 }
 
