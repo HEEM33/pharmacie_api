@@ -18,7 +18,6 @@ class AlerteController extends Controller
 
     if ($faibleStock->isNotEmpty()) {
         foreach ($faibleStock as $produit) {
-            Log::warning("Produit faible en stock : {$produit->nom} ({$produit->niveau_en_stock})");
         }
 
         return response()->json([

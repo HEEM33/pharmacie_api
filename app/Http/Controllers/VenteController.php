@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\VenteCreated;
 use App\Models\Vente;
 use App\Http\Controllers\Controller;
 use App\Models\Produit;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class VenteController extends Controller
 {
@@ -59,7 +61,12 @@ class VenteController extends Controller
          $vente->produits()->attach(
         collect($produits)->mapWithKeys(fn($p) => [$p['id'] => ['quantite' => $p['quantite']]])->toArray()
         );
+        $vente->load('produits');
 
+        Log::info('Vente created: ' . $vente->id . ', preparing to broadcast');
+        Log::info('Broadcasting VenteCreated for vente ' . $vente->id);
+        broadcast(new VenteCreated($vente));
+        Log::info('Broadcast completed for vente ' . $vente->id);
         return $vente;
     }
 
